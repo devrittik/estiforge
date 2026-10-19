@@ -25,6 +25,9 @@ export async function register(): Promise<void> {
       { module: "config", operation: "validate", err: error },
       "configuration invalid",
     );
+    if (process.env.NEXT_PHASE === "phase-production-build") {
+      return;
+    }
     throw error;
   }
 }

@@ -37,6 +37,14 @@ Open http://127.0.0.1:3000. Health is http://127.0.0.1:3000/api/health and repor
 
 On macOS or Linux, use `cp .env.example .env` instead of `Copy-Item`.
 
+### Vercel
+
+`.env` is not uploaded. In the Vercel project settings, add the same names as `.env.example`. `SESSION_SECRET` must be at least 32 characters. Use `MONGODB_MODE=atlas` and `MONGODB_ATLAS_URI` there. A `127.0.0.1` MongoDB URI points at the Vercel machine, not your computer.
+
+Set `VOICE_STT_ENABLED=false` on Vercel unless a public whisper.cpp URL is available. Leave `LLM_API_KEY` empty only when `LLM_PROVIDER=local`.
+
+`npm run build` is the Vercel build command. TypeScript, the Tailwind loader, and the React compiler plugin are dependencies so a production install can still compile.
+
 ### MongoDB
 
 With `MONGODB_MODE=local`, EstiForge uses only `MONGODB_LOCAL_URI`. A failed local connection is reported as a connection error and is not sent to Atlas. Set `MONGODB_MODE=atlas` and `MONGODB_ATLAS_URI` only when you intend to use Atlas.
