@@ -1,6 +1,7 @@
 import "server-only";
 
 import mongoose from "mongoose";
+import { connection } from "next/server";
 
 import { getEnv, type AppEnv } from "@/lib/config/env";
 import { logger } from "@/lib/logging/logger";
@@ -69,7 +70,19 @@ async function ensureIndexes(): Promise<void> {
   ]);
 }
 
+async function waitForRequest(): Promise<void> {
+  try {
+    await connection();
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("outside a request scope")) {
+      return;
+    }
+    throw error;
+  }
+}
+
 export async function connectToDatabase(uriOverride?: string): Promise<typeof mongoose> {
+  await waitForRequest();
   const target = uriOverride
     ? { mode: "local" as const, uri: uriOverride }
     : resolveMongoTarget(getEnv());

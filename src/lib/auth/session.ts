@@ -27,7 +27,11 @@ export async function encryptSession(payload: SessionPayload): Promise<string> {
     .sign(signingKey());
 }
 
-export async function decryptSession(token: string | undefined): Promise<SessionPayload | null> {
+function currentTimeMs(): number {
+  return performance.timeOrigin + performance.now();
+}
+
+export async function decryptSession(token: string | undefined, now = currentTimeMs()): Promise<SessionPayload | null> {
   if (!token) {
     return null;
   }
@@ -35,10 +39,10 @@ export async function decryptSession(token: string | undefined): Promise<Session
   if (!secret || secret.length < 32) {
     return null;
   }
-  return readSignedPayload(token, secret);
+  return readSignedPayload(token, secret, now);
 }
 
-function readSignedPayload(token: string, secret: string): SessionPayload | null {
+function readSignedPayload(token: string, secret: string, now: number): SessionPayload | null {
   const parts = token.split(".");
   if (parts.length !== 3) {
     return null;
@@ -68,7 +72,7 @@ function readSignedPayload(token: string, secret: string): SessionPayload | null
   if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
     return null;
   }
-  if (typeof payload.exp === "number" && payload.exp * 1000 <= Date.now()) {
+  if (typeof payload.exp === "number" && payload.exp * 1000 <= now) {
     return null;
   }
   if (typeof payload.userId !== "string" || payload.userId.length === 0) {

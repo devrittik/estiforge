@@ -25,6 +25,8 @@ describe("sessions", () => {
     await expect(decryptSession(`${token}x`)).resolves.toBeNull();
     process.env.SESSION_SECRET = "another-session-secret-at-least-32-characters";
     await expect(decryptSession(token)).resolves.toBeNull();
+    process.env.SESSION_SECRET = "test-session-secret-at-least-32-characters";
+    await expect(decryptSession(token, Date.now() + 8 * 24 * 60 * 60 * 1000)).resolves.toBeNull();
   });
 });
 
